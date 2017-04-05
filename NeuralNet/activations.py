@@ -1,39 +1,39 @@
 import numpy as np
 
 
-def sigmoid(signal, deriv=False):
-    if deriv:
-        return np.multiply(signal, 1 - signal)
-    activation = 1 / (1 + np.exp(-signal))
-    return activation
+class Activator:
+    @staticmethod
+    def sigmoid(signal, deriv=False):
+        if deriv:
+            return np.multiply(signal, 1 - signal)
+        activation = 1 / (1 + np.exp(-signal))
+        return activation
 
+    @staticmethod
+    def tanh(signal, deriv=False):
+        if deriv:
+            return 1 - np.power(np.tanh(signal), 2)
+        activation = np.tanh(signal)
+        return activation
 
-def tanh(signal, deriv=False):
-    if deriv:
-        return 1 - np.power(np.tanh(signal), 2)
-    activation = np.tanh(signal)
-    return activation
+    @staticmethod
+    def elu(signal, deriv=False, alpha=1.0):
 
+        activation = (signal >= 0).astype(int) * signal + \
+                     (signal < 0).astype(int) * (alpha * (np.exp(signal) - 1))
 
-def elu(signal, deriv=False, alpha=1.0):
-    activation = np.piecewise(signal, [signal < 0, signal >= 0], [
-        lambda z: alpha * (np.exp(z) - 1), lambda z: z])
+        if deriv:
+            activation = (signal >= 0).astype(int) + \
+                         (signal < 0) * (Activator.elu(signal) + alpha)
 
-    if deriv:
-        activation[activation >= 0] = 1
+        return activation
 
-        x = activation[activation < 0]
-        derivative = np.piecewise(x, [x < 0, x >= 0], [lambda z: alpha * (np.exp(z) - 1), lambda z: z]) + alpha
+    @staticmethod
+    def softmax(signal, deriv=False):
+        signal = signal - np.max(signal)
+        # Implement correct derivation for the softmax normalization
+        if deriv:
+            return np.exp(signal) * (1 - np.exp(signal))
 
-        activation[activation < 0] = derivative
-
-    return activation
-
-
-def softmax(signal, deriv=False):
-    signal = signal - np.max(signal)
-    if deriv:
-        return np.exp(signal) * (1 - np.exp(signal))
-
-    activation = np.exp(signal) / np.array([np.sum(np.exp(signal), axis=1)]).T
-    return activation
+        activation = np.exp(signal) / np.array([np.sum(np.exp(signal), axis=1)]).T
+        return activation

@@ -1,8 +1,7 @@
 import numpy as np
-import activations as av
+from activations import Activator as av
 
 
-# noinspection PyTypeChecker
 class NeuralNet:
     def __init__(self, inputs_dim):
 
@@ -10,8 +9,8 @@ class NeuralNet:
         self.layers_dim = []
         self.hidden_count = 0
         self.layer_activations = {}
-        self.layer_signals = np.array([])
-        self.synapse_weights = np.array([])
+        self.layer_signals = []
+        self.synapse_weights = []
         self.is_built = False
 
         if inputs_dim <= 0:
@@ -61,13 +60,10 @@ class NeuralNet:
 
         network_dim = len(self.layers_dim)
         self.network = np.empty(network_dim, dtype=object)
-        self.synapse_weights = np.empty(network_dim - 1, dtype=object)
-        self.layer_signals = np.empty(network_dim - 1, dtype=object)
 
-        for i in range(len(self.synapse_weights)):
-            self.synapse_weights[i] = 2 * np.random.random((self.layers_dim[i], self.layers_dim[i + 1])) - 1
-
-        self.synapse_weights = self.synapse_weights.reshape((len(self.synapse_weights), 1))
+        for i in range(network_dim - 1):
+            self.synapse_weights.append(2 * np.random.random((self.layers_dim[i],
+                                                              self.layers_dim[i + 1])) - 1)
 
         self.is_built = True
 
@@ -87,7 +83,7 @@ class NeuralNet:
 
     def forward_prop(self):
         for i in range(1, len(self.network)):
-            self.layer_signals[i - 1] = np.dot(self.network[i - 1], self.synapse_weights[i - 1][0])
+            self.layer_signals.append(self.network[i - 1].dot(self.synapse_weights[i - 1]))
             self.network[i] = self.activation(
                 self.layer_signals[i - 1],
                 list(self.layer_activations.values())[i])
@@ -96,61 +92,6 @@ class NeuralNet:
                 self.network[i][-1] = 1
 
         self.network = self.network.reshape((len(self.network), 1))
-        self.layer_signals = self.layer_signals.reshape((len(self.layer_signals), 1))
-
-    def cross_entrophy_error(self, labels, deriv=False, lmbda=0.01, epsilon=1e-11):
-        output = np.clip(self.network[-1][0], epsilon, 1 - epsilon)
-        num_inputs = len(self.network[0][0])
-
-        if deriv:
-            gradient =
-
-        regularize = (lmbda / (2 * num_inputs)) * np.power(np.sum(
-            np.sum(self.synapse_weights[w][0]) for w in range(len(self.synapse_weights))), 2)
-
-        loss = (-1 / num_inputs) * np.sum(labels * np.log(outputs) + (1 - labels) * np.log(1 - outputs)) + regularize
-
-        return loss
-
-    # def back_prop(self, labels):
-    #     layer_activations = list(self.layer_activations.values())
-    #     output = self.network[-1][0]
-    #
-    #     layer_errors = np.empty(len(self.network) - 1, dtype=object)
-    #     layer_errors[-1] = (output - labels) * self.activation(self.layer_signals[-1][0], layer_activations[-1], True)
-    #
-    #     layer_deltas = np.empty(len(layer_errors), dtype=object)
-    #     layer_deltas[-1] = np.dot(self.network[-2][0].T, layer_errors[-1])
-    #
-    #     for i in range(-2, -len(self.network), -1):
-    #         hidden_error = (np.dot(layer_errors[i + 1], self.synapse_weights[i + 1][0].T)) * \
-    #                        self.activation(self.layer_signals[i][0], layer_activations[i], True)
-    #
-    #         hidden_error[:, -1] = 1
-    #         layer_errors[i] = hidden_error
-    #
-    #         hidden_delta = np.dot(self.network[i - 1][0].T, layer_errors[i])
-    #         hidden_delta[:, -1] = 1
-    #         layer_deltas[i] = hidden_delta
-    #
-    #     layer_deltas = layer_deltas.reshape((len(layer_deltas), 1))
-    #     cost_deriv = (1 / len(self.network[0][0])) * (layer_deltas + (0.01 * self.synapse_weights))
-    #
-    #     return cost_deriv
-    #
-    # def gradient(self, labels, alpha, error_thresh):
-    #     loss = self.cross_entrophy_error(labels)
-    #     epoch = 0
-    #     while loss > error_thresh:
-    #         self.network = self.network.reshape((len(self.network)))
-    #         self.layer_signals = self.layer_signals.reshape((len(self.layer_signals)))
-    #
-    #         self.forward_prop()
-    #         cost_deriv = self.back_prop(labels)
-    #         self.synapse_weights += alpha * cost_deriv
-    #
-    #         loss = self.cross_entrophy_error(labels)
-    #         epoch += 1
 
     def fit_transform(self, inputs, labels):
         if not self.is_built:
@@ -168,21 +109,3 @@ class NeuralNet:
 
         self.network[0] = inputs
         self.forward_prop()
-        self.gradient(labels, 0.001, 0.05)
-
-
-train_sets = 4
-input_dim = 2
-output_dim = 1
-hidden_dim = int(np.ceil(np.mean([input_dim, output_dim])))
-
-neural_net = NeuralNet(input_dim)
-neural_net.add_layer(layer_type='hidden', layer_dim=hidden_dim)
-neural_net.add_layer(layer_type='hidden', layer_dim=hidden_dim)
-neural_net.add_layer(layer_type='target', layer_dim=output_dim,
-                     layer_activation='softmax')
-neural_net.build()
-
-X = np.array([[0, 1], [1, 1], [1, 0], [0, 0]])
-y = np.array([[0], [1], [0], [1]])
-neural_net.fit_transform(X, y)
