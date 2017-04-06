@@ -23,17 +23,22 @@ class Activator:
                      (signal < 0).astype(int) * (alpha * (np.exp(signal) - 1))
 
         if deriv:
-            activation = (signal >= 0).astype(int) + \
-                         (signal < 0) * (Activator.elu(signal) + alpha)
+            derivation = (signal >= 0).astype(int) + \
+                         (signal < 0) * (activation + alpha)
+            return derivation
 
         return activation
 
     @staticmethod
     def softmax(signal, deriv=False):
         signal = signal - np.max(signal)
-        # Implement correct derivation for the softmax normalization
-        if deriv:
-            return np.exp(signal) * (1 - np.exp(signal))
-
         activation = np.exp(signal) / np.array([np.sum(np.exp(signal), axis=1)]).T
+
+        if deriv:
+            jacobian = - activation[..., None] * activation[:, None, :]
+            iy, ix = np.diag_indices_from(jacobian[0])
+            jacobian[:, iy, ix] = activation * (1 - activation)
+
+            return jacobian.sum(axis=1)
+
         return activation
