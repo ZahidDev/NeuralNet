@@ -4,7 +4,7 @@ import numpy as np
 class Validation:
 
     @staticmethod
-    def cross_entropy(output, labels, epsilon=1e-11):
+    def binary_cross_entropy(output, labels, epsilon=1e-11):
         output = np.clip(output, epsilon, 1 - epsilon)
         t_len = len(output)
 
