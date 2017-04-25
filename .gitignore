@@ -1,0 +1,14 @@
+
+\.idea/
+
+\.vscode/
+
+NeuralNet/__pycache__/
+
+NeuralNet/main2\.py
+
+NeuralNet/main\.py
+
+NeuralNet/tools/__pycache__/
+
+NeuralNet/data/
