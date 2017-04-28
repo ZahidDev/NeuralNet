@@ -1,10 +1,30 @@
 #!/usr/bin/env python3
+
+# Written and Maintained by Zahidul Islam (ZahidDev)
+
 import numpy as np
 
 
 class Validation:
+    """Contains Loss metrics for NeuralNet.
+
+    Currently contains log loss implementations of binary and multi-class Neural Networks.
+    """
+
     @staticmethod
     def binary_logistic_loss(output, labels, deriv, epsilon=1e-11):
+        """Computes the log loss on binary classifications.
+
+        Args:
+            output (ndarray): The predicted labels of the network.
+            labels (ndarray): The actual labels of the training data.
+            deriv (bool): Whether to use the derivation of the loss metric.
+            epsilon (float): Prevent division of zero error
+                (Default: 1e-11).
+
+        Return:
+            The mean log loss of the current Neural Net. [0, inf)
+        """
         output = np.clip(output, epsilon, 1 - epsilon)
 
         if deriv:
@@ -16,6 +36,18 @@ class Validation:
 
     @staticmethod
     def multinomial_logistic_loss(output, labels, deriv, epsilon=1e-11):
+        """Computes the log loss on multi-classifications.
+
+        Args:
+            output (ndarray): The predicted labels of the network.
+            labels (ndarray): The actual labels of the training data.
+            deriv (bool): Whether to use the derivation of the loss metric.
+            epsilon (float): Prevent division of zero error
+                (Default: 1e-11).
+
+        Return:
+            The mean log loss of the current Neural Net. [0, inf)
+        """
         output = np.clip(output, epsilon, 1 - epsilon)
 
         if deriv:

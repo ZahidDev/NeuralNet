@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# NeuralNet
+#
+# Written and Maintained by Zahidul Islam (ZahidDev)
+
 import numpy as np
 from activations import Activator as av
 from loss_validations import Validation
@@ -7,7 +11,31 @@ from optimizations import Optimizer
 
 
 class NeuralNet:
+    """Modular Neural Network framework.
+
+    NeuralNet is a simple Deep Learning Neural Network that focuses on modularity.
+    Uses numpy vectorization and math to optimize training time.
+
+    Attributes:
+        network (list): List of ndarrays containing the values for each node in each layer.
+        layers_dim (list): List containing the # of neurons in each layer.
+        hidden_count (int): Number of hidden layers in network.
+        layer_activations (dict): Dict containing activation function for each layer.
+        layer_signals (list): List of ndarrays containing the signals for each Layer.
+        synapse_weights (list): List of ndarrays containing the weights for each layer.
+        loss_validation (function): Loss Metric used for network 
+            Default: Validation.binary_logistic_loss).
+        optimizer (function): Optimization algorithm used for network 
+            (Default: Optimizer.grad_descent).
+        is_built (bool): Whether the network is built.
+    """
+
     def __init__(self, inputs_dim):
+        """Initialization of Neural Network.
+
+        Args:
+            inputs_dim (int): # of features/neurons in input.
+        """
         self.network = [np.array([])]
         self.layers_dim = []
         self.hidden_count = 0
@@ -26,6 +54,18 @@ class NeuralNet:
         self.layer_activations['input'] = "INPUT"
 
     def add_layer(self, layer_type, layer_dim, layer_activation='elu'):
+        """Adds a layer to Neural Network.
+
+        Args:
+            layer_type (str): Type of layer (Default: 'hidden')
+            layer_dim (int): # of units/neurons in layer
+            layer_activation (str): Activation function used on layer neurons 
+                (Default: 'elu')
+
+        Raises:
+                OverflowError: Adding layer after adding a target layer
+                ValueError: If given args aren't recognized
+        """
         if 'target' in self.layer_activations:
             raise OverflowError(
                 "Cannot add more layers to Neural Network. target layer already exists")
@@ -57,6 +97,18 @@ class NeuralNet:
             self.layers_dim.append(layer_dim)
 
     def build(self, loss_func, optimizer):
+        """Compiles Neural Network.
+
+        Sets loss and activation functions for network. Also randomizes weights based on added
+        layers in the network.
+
+        Args:
+            loss_func (str): Type of loss validation function used
+            optimizer (str): Gradient Optimization algorithm used
+
+        Raises:
+               RuntimeError: Building network without adding a target layer
+        """
         if 'target' not in list(self.layer_activations.keys()):
             raise RuntimeError(
                 "Network must contain at least one 'target' layer!")
@@ -84,6 +136,16 @@ class NeuralNet:
 
     @staticmethod
     def activation(signal, activation_func, deriv=False):
+        """Applies an activation function on given signals in a layer.
+
+        Args:
+            signal (ndarray): A layer of neuron values multiplied by their weights
+            activation_func (str): Given activation function for the layer
+            deriv (bool): Whether to use the derived activation function (Default: False)
+
+        Returns:
+            A numpy array of activations, which is the layer transformed by a activation function
+        """
         options = {
             'sigmoid': av.sigmoid,
             'tanh': av.tanh,
@@ -96,6 +158,12 @@ class NeuralNet:
         return activation
 
     def forward_prop(self):
+        """Forward propagates within the network, layer by layer.
+
+        Performs forward propagation, which takes values from the input layer, through the
+        hidden layer, to get a target layer. The target layer holds the predictions based on
+        the network's model.
+        """
         for i in range(1, len(self.network)):
             self.layer_signals[i - 1] = self.network[i -
                                                      1].dot(self.synapse_weights[i - 1])
@@ -107,6 +175,18 @@ class NeuralNet:
                 self.network[i][-1] = 1
 
     def back_prop(self, labels):
+        """Retrieves the gradient of the Neural Network.
+
+        Performs Backpropagation to retrieve the gradient of the network which is required
+        to optimize the network for better accuracy.
+
+        Args:
+            labels (ndarray): The actual labels of the training data
+
+        Returns:
+            A list of ndarrays which contains the gradient of error based on the current weights
+            and error of predictions of the network for each layer.
+        """
         layer_activations = list(self.layer_activations.values())
         output = self.network[-1]
         data_cnt = len(labels)
@@ -135,6 +215,17 @@ class NeuralNet:
         return grad
 
     def optimize(self, labels, alpha, max_epoch, epsilon):
+        """Optimizes network for accuracy.
+
+        Updates the learning weights for each layer by a given Optimization algorithm.
+        Performs this optimization until a desired accuracy or runtime limit.
+
+        Args:
+            labels (ndarray): The actual labels of the training data
+            alpha (float): The learning rate; How big of a step the optimization takes.
+            max_epoch (int): The maximum number of iterations the Optimization runs upon.
+            epsilon (float): The required difference of error in each epoch.
+        """
         epoch = 0
         loss = self.loss_validation(output=self.network[-1], labels=labels,
                                     deriv=False)
@@ -160,6 +251,17 @@ class NeuralNet:
                                           labels=labels, deriv=False))
 
     def fit_transform(self, inputs, labels, alpha=0.001, max_epoch=6000, epsilon=1e-6):
+        """Fits data into network and trains it.
+
+         User Interface for accessing forward propagation and back propagation.
+
+         Args:
+             inputs (ndarray): Input Array with size (training size, # features)
+             labels (ndarray): The actual labels of the training data.
+             alpha (float): The learning rate; How big of a step the optimization takes.
+             max_epoch (int): The maximum number of iterations the Optimization runs upon.
+             epsilon (float): The required difference of error in each epoch.
+        """
         if not self.is_built:
             raise RuntimeError(
                 "Network hasn't been built yet. Please use the build() method on your network!")
