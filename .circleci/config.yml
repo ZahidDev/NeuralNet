@@ -11,4 +11,8 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install numpy=1.11.0
+            pip install numpy==1.11.0
+      - run:
+          command: |
+            . venv/bin/activate
+            python NeuralNet/NeuralNet.py
