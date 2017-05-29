@@ -16,8 +16,8 @@ jobs:
             . venv/bin/activate
             pip install numpy==1.11.0
       - save_cache:
-          key:
-            - neuralnet-{{ .Branch }}
+          key: 
+            neuralnet-{{ .Branch }}
           paths:
             - "venv"
       - run:
