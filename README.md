@@ -1,6 +1,5 @@
-[![CircleCI](https://circleci.com/gh/ZahidDev/NeuralNet/tree/master.svg?style=svg)](https://circleci.com/gh/ZahidDev/NeuralNet/tree/master)
-
 # NeuralNet Framework  
+[![CircleCI](https://circleci.com/gh/ZahidDev/NeuralNet/tree/master.svg?style=svg&circle-token=37a45a9effbd29238b7881f94fb5d30311bdf14c)](https://circleci.com/gh/ZahidDev/NeuralNet/tree/master)
 
 Basic deep neural network framework heavily inspired by the Keras Framework.  
 
