@@ -1,9 +1,15 @@
- version: 2
- jobs:
-   build:
-     working_directory: ~/NeuralNet
-     docker:
-       - image: circleci/python:3.6
-     steps:
-       - checkout
-       - run: echo "hello world"
+version: 2
+jobs:
+  build:
+    working_directory: ~/NeuralNet
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - run: pip install numpy=1.11.0
+    steps:
+      name: Install Python deps in a venv
+      command: |
+        python3 -m venv venv
+        . venv/bin/activate
+        pip install numpy=1.11.0
