@@ -6,12 +6,20 @@ jobs:
       - image: python:3.6.0
     steps:
       - checkout
+      - restore_cache:
+          key:
+            - projectname-master
       - run:
           name: Install Python deps in a venv
           command: |
             python3 -m venv venv
             . venv/bin/activate
             pip install numpy==1.11.0
+      - save_cache:
+          key:
+            - projectname-master
+          paths:
+            - "venv"
       - run:
           command: |
             . venv/bin/activate
