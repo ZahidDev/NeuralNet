@@ -15,6 +15,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install numpy==1.11.0
+            pip install codecov
       - save_cache:
           key: 
             neuralnet-{{ .Branch }}
@@ -24,6 +25,7 @@ jobs:
           command: |
             . venv/bin/activate
             python NeuralNet/NeuralNet.py
+            codecov
     test:
       post:
         - bash <(curl -s https://codecov.io/bash)
