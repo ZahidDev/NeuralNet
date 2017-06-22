@@ -25,6 +25,7 @@ jobs:
           command: |
             . venv/bin/activate
             python NeuralNet/NeuralNet.py
+            coverage run NeuralNet/NeuralNet.py
             codecov
     test:
       post:
