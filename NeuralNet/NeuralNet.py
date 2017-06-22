@@ -23,9 +23,9 @@ class NeuralNet:
         layer_activations (dict): Dict containing activation function for each layer.
         layer_signals (list): List of ndarrays containing the signals for each Layer.
         synapse_weights (list): List of ndarrays containing the weights for each layer.
-        loss_validation (function): Loss Metric used for network 
+        loss_validation (function): Loss Metric used for network
             Default: Validation.binary_logistic_loss).
-        optimizer (function): Optimization algorithm used for network 
+        optimizer (function): Optimization algorithm used for network
             (Default: Optimizer.grad_descent).
         is_built (bool): Whether the network is built.
     """
@@ -59,7 +59,7 @@ class NeuralNet:
         Args:
             layer_type (str): Type of layer (Default: 'hidden')
             layer_dim (int): # of units/neurons in layer
-            layer_activation (str): Activation function used on layer neurons 
+            layer_activation (str): Activation function used on layer neurons
                 (Default: 'elu')
 
         Raises:
